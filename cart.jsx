@@ -1,9 +1,9 @@
 // simulate getting products from DataBase
 const products = [
-  { name: "Apples_:", country: "Italy", cost: 3, instock: 10 },
-  { name: "Oranges:", country: "Spain", cost: 4, instock: 3 },
-  { name: "Beans__:", country: "USA", cost: 2, instock: 5 },
-  { name: "Cabbage:", country: "USA", cost: 1, instock: 8 },
+  { name: "Apples_", country: "Italy", cost: 3, instock: 10 },
+  { name: "Oranges_", country: "Spain", cost: 4, instock: 3 },
+  { name: "Beans__", country: "USA", cost: 2, instock: 5 },
+  { name: "Cabbage_", country: "USA", cost: 1, instock: 8 },
 ];
 //=========Cart=============
 const Cart = (props) => {
@@ -33,7 +33,7 @@ const useDataApi = (initialUrl, initialData) => {
         const result = await axios(url);
         console.log("FETCH FROM URl");
         if (!didCancel) {
-          dispatch({ type: "FETCH_SUCCESS", payload: result.data });
+          dispatch({ type: "FETCH_SUCCESS", payload: result.data.data });
         }
       } catch (error) {
         if (!didCancel) {
@@ -82,9 +82,9 @@ const Products = (props) => {
     ReactBootstrap;
   //  Fetch Data
   const { Fragment, useState, useEffect, useReducer } = React;
-  const [query, setQuery] = useState("localhost:1337/api/products");
+  const [query, setQuery] = useState("http://localhost:1337/api/products");
   const [{ data, isLoading, isError }, doFetch] = useDataApi(
-    "localhost:1337/api/products",
+    "http://localhost:1337/api/products",
     {
       data: [],
     }
@@ -113,14 +113,14 @@ const Products = (props) => {
   const photos = ["apple.png", "orange.png", "beans.png", "cabbage.png"];
 
   let list = items.map((item, index) => {
-     let n = index + 1049;
-     let url = "https://picsum.photos/id/" + n + "/50/50";
+    let n = index + 1049;
+    let url = "https://picsum.photos/id/" + n + "/50/50";
 
     return (
       <li key={index}>
         <Image src={photos[index % 4]} width={70} roundedCircle></Image>
         <Button variant="primary" size="large">
-          {item.name}:${item.cost}-Stock={item.instock}
+        {item.name}:${item.cost}-Stock={item.instock}
         </Button>
         <input
           name={item.name}
@@ -130,7 +130,6 @@ const Products = (props) => {
       </li>
     );
   });
-
   let cartList = cart.map((item, index) => {
     return (
       <Card key={index}>
@@ -170,12 +169,11 @@ const Products = (props) => {
     console.log(`total updated to ${newTotal}`);
     return newTotal;
   };
-
   // TODO: implement the restockProducts function
   const restockProducts = (url) => {
     doFetch(url);
     let newItems = data.map((item) => {
-      let { name, country, cost, instock } = item;
+      let { name, country, cost, instock } = item.attributes;
       return { name, country, cost, instock };
     });
     setItems([...items, ...newItems]);
@@ -201,7 +199,7 @@ const Products = (props) => {
       <Row>
         <form
           onSubmit={(event) => {
-            restockProducts(query);
+            restockProducts(`http://localhost:1337/api/${query}`);
             console.log(`Restock called on ${query}`);
             event.preventDefault();
           }}
